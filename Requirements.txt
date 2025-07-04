@@ -1,0 +1,3 @@
+# Require python >=3.10
+
+flet==0.28.3
