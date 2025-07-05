@@ -1,16 +1,29 @@
 # ReAzure
 Group 5  \
-Project proposal: https://drive.google.com/file/d/1AcfpSmkxHPtAycWrDmN0ioSYhyqiX5Qr/view?usp=drive_link  \
-Gantt chart: https://docs.google.com/spreadsheets/d/1ijYl5Bpg2EKnJSlfxoNBIK7D4_sALDX6/edit?usp=sharing&ouid=114568529811023043094&rtpof=true&sd=true  \
+- 📌 **Proposal**: [View on Google Drive](https://drive.google.com/file/d/1AcfpSmkxHPtAycWrDmN0ioSYhyqiX5Qr/view?usp=drive_link)
+- 📅 **Gantt Chart**: [View Progress Plan](https://docs.google.com/spreadsheets/d/1ijYl5Bpg2EKnJSlfxoNBIK7D4_sALDX6/edit?usp=sharing&ouid=114568529811023043094&rtpof=true&sd=true)
 
 
 Pre-requisites
+Ensure you have:
+- Python **3.10 or higher**
+ 
+# Step 1: Clone the repository
+git clone https://github.com/ivnjlsjnr/ReAzure
+cd ReAzure
 
-Step 1. git clone https://github.com/ivnjlsjnr/ReAzure  \
-Step 2. cd ReAzure  \
-Step 3. Create a virtual environment  \
-Step 4. pip install "Requirements.txt"  \
-Step 5. Run main.py  \
+# Step 2: Create and activate a virtual environment
+python -m venv venv
+# On Windows:
+venv\Scripts\activate
+# On Mac/Linux:
+source venv/bin/activate
+
+# Step 3: Install dependencies
+pip install -r requirements.txt
+
+# Step 4: Run the app
+python main.py
 
 
 
