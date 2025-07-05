@@ -8,7 +8,7 @@ Pre-requisites
 
 Step 1. git clone https://github.com/ivnjlsjnr/ReAzure  \
 Step 2. cd ReAzure  \
-Step 3. Create a virtual environment
+Step 3. Create a virtual environment  \
 Step 4. pip install "Requirements.txt"  \
 Step 5. Run main.py
 
