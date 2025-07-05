@@ -1,1 +1,11 @@
 flet==0.28.3
+fastapi==0.111.0
+uvicorn==0.30.1
+
+matplotlib==3.8.4
+pydantic==2.7.1
+requests==2.32.2
+
+
+# Python built-in SQLite — no external dependency needed
+# Python >= 3.10
