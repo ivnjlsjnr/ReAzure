@@ -27,10 +27,16 @@ python main.py
 
 
 
+### Troubleshooting
 
-Troubleshooting Issues encountered:  \
-"libmpv.so.1: cannot open shared object file: No such file or directory"  \
-solution:   \
+#### Issue: `libmpv.so.1: cannot open shared object file: No such file or directory`
+
+This error usually occurs when running the Flet app on Linux, and the required `libmpv` media library is missing.
+
+##### ✅ Solution:
+
+
 sudo apt update  \
 sudo apt install libmpv-dev libmpv2  \
 sudo ln -s /usr/lib/x86_64-linux-gnu/libmpv.so /usr/lib/libmpv.so.1  \
+
