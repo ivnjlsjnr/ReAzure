@@ -1,6 +1,6 @@
 import flet as ft
-from views.login import LoginPage
-from views.dashboard import DashboardPage
+from pages.login.login import LoginPage
+from pages.dashboard import DashboardPage
 
 def main(page: ft.Page):
     page.title = "ReAzure"
