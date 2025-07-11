@@ -13,7 +13,7 @@ Ensure you have:
 - Python **3.10 or higher**
  
 # Step 1: Clone the repository
-git clone https://github.com/ivnjlsjnr/ReAzure
+git clone https://github.com/ivnjlsjnr/ReAzure  
 cd ReAzure
 
 # Step 2: Create and activate a virtual environment
