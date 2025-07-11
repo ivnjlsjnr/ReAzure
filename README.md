@@ -1,5 +1,9 @@
-# ReAzure
-Group 5  \
+# ReAzure 
+- Mental Health Tracker, a platform designed to support
+mental wellness through self-reflection, mood tracking, and community-based resources. By
+integrating journaling features and mood analytics, the tracker encourages individuals to actively
+engage with their emotional well-being.  
+
 - 📌 **Proposal**: [View on Google Drive](https://drive.google.com/file/d/1AcfpSmkxHPtAycWrDmN0ioSYhyqiX5Qr/view?usp=drive_link)
 - 📅 **Gantt Chart**: [View Progress Plan](https://docs.google.com/spreadsheets/d/1ijYl5Bpg2EKnJSlfxoNBIK7D4_sALDX6/edit?usp=sharing&ouid=114568529811023043094&rtpof=true&sd=true)
 
