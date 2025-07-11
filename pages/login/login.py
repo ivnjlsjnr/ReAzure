@@ -1,5 +1,5 @@
 import flet as ft
-from login_bl import validate_login  # ✅ Import the business logic
+from login_bl import validate_login 
 
 def LoginPage(page: ft.Page):
     username = ft.TextField(label="Username")
@@ -9,7 +9,7 @@ def LoginPage(page: ft.Page):
         uname = username.value.strip()
         pword = password.value.strip()
         
-        if validate_login(uname, pword):  # ✅ Use logic layer
+        if validate_login(uname, pword): 
             print("Login successful")
             page.go("/dashboard")
         else:
