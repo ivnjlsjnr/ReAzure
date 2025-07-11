@@ -1,5 +1,5 @@
 import flet as ft
-from login_bl import validate_login 
+from pages.login.login_bl import validate_login
 
 def LoginPage(page: ft.Page):
     username = ft.TextField(label="Username")
