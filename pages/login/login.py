@@ -1,5 +1,5 @@
 import flet as ft
-from pages.login.login_bl import validate_login
+from login_bl import validate_login 
 
 def LoginPage(page: ft.Page):
     username = ft.TextField(label="Username")
@@ -9,12 +9,12 @@ def LoginPage(page: ft.Page):
         uname = username.value.strip()
         pword = password.value.strip()
         
-        if validate_login(uname, pword):  
+        if validate_login(uname, pword): 
             print("Login successful")
             page.go("/dashboard")
         else:
             print("Invalid login")
-            page.snack_bar = ft.SnackBar(ft.Text("Invalid login 😓"))
+            page.snack_bar = ft.SnackBar(ft.Text("Invalid login"))
             page.snack_bar.open = True
             page.update()
 
@@ -22,7 +22,7 @@ def LoginPage(page: ft.Page):
         "/",
         controls=[
             ft.Image(src="Assets/ReAzure.png", width=120, height=120),  
-            ft.Text("🔐 Log into ReAzure", size=24, weight="bold"),
+            ft.Text("Log into ReAzure", size=24, weight="bold"),
             username,
             password,
             ft.ElevatedButton("Login", on_click=login)

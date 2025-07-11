@@ -14,6 +14,7 @@ cd ReAzure
 
 # Step 2: Create and activate a virtual environment
 python -m venv venv
+# To Activate
 # On Windows:
 venv\Scripts\activate
 # On Mac/Linux:
