@@ -43,5 +43,5 @@ This error usually occurs when running the Flet app on Linux, and the required `
 
 sudo apt update  \
 sudo apt install libmpv-dev libmpv2  \
-sudo ln -s /usr/lib/x86_64-linux-gnu/libmpv.so /usr/lib/libmpv.so.1  \
+sudo ln -s /usr/lib/x86_64-linux-gnu/libmpv.so /usr/lib/libmpv.so.1  
 
