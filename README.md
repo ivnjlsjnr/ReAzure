@@ -10,7 +10,7 @@ engage with their emotional well-being.
 
 Pre-requisites
 Ensure you have:
-- Python **3.10 or higher**
+- Python **3.11**
  
 # Step 1: Clone the repository
 git clone https://github.com/ivnjlsjnr/ReAzure  
