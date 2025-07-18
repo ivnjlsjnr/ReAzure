@@ -1,10 +1,13 @@
 # login_dataAccess.py
 
-def load_users(file_path: str = "user.txt") -> list[tuple[str, str]]:
-   
+def load_admins(file_path: str = "admin.txt") -> list[tuple[str, str]]:
+    """
+    Load admin credentials from admin.txt.
+    Returns a list of (username, password) tuples.
+    """
     try:
         with open(file_path, "r") as f:
-            users = []
+            admins = []
             for line in f:
                 line = line.strip()
                 if not line or line.startswith("#"):
@@ -12,8 +15,8 @@ def load_users(file_path: str = "user.txt") -> list[tuple[str, str]]:
                 if "," in line:
                     parts = line.split(",")
                     if len(parts) == 2:
-                        users.append((parts[0].strip(), parts[1].strip()))
-        return users
+                        admins.append((parts[0].strip(), parts[1].strip()))
+        return admins
     except Exception as e:
-        print(f"[DataAccess] Error reading user file: {e}")
+        print(f"[DataAccess] Error reading admin file: {e}")
         return []
