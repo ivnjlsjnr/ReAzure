@@ -25,7 +25,7 @@ venv\Scripts\activate
 source venv/bin/activate
 
 # Step 3: Install dependencies
-pip install -r requirements.txt
+pip install -r Requirements.txt
 
 # Step 4: Run the app
 python main.py
