@@ -9,5 +9,5 @@ pydantic==2.7.1
 requests==2.32.2
 
 
-# Python built-in SQLite — no external dependency needed
-# Python >= 3.10
+# Python built-in SQLite
+# Python = 3.11
