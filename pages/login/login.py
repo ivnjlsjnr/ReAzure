@@ -1,6 +1,6 @@
 # login.py
-
 import flet as ft
+from .login_bl import validate_login
 from pages.users.user import User
 
 def LoginPage(page: ft.Page, on_login_success):
@@ -11,21 +11,14 @@ def LoginPage(page: ft.Page, on_login_success):
         uname = username.value.strip()
         pword = password.value.strip()
 
-        # Admin login
-        try:
-            with open("admin.txt", "r") as f:
-                for line in f:
-                    if uname in line and pword in line:
-                        print("Admin login ✅")
-                        page.go("/admin")
-                        return
-        except:
-            pass
+        role = validate_login(uname, pword)
 
-        # User login
-        user = User(uname, pword)
-        if user.login():
+        if role == "admin":
+            print("Admin login ✅")
+            page.go("/admin")
+        elif role == "user":
             print("User login ✅")
+            user = User(uname, pword)
             user_id = user.get_user_id()
             if user_id:
                 on_login_success(user_id)
