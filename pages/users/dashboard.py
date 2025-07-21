@@ -1,6 +1,8 @@
 import flet as ft
 import sqlite3
+import requests
 from datetime import datetime, timedelta
+
 
 def get_username(user_id: int) -> str:
     with sqlite3.connect("reazure.db") as conn:
@@ -17,6 +19,42 @@ def get_saved_moods(user_id: int):
             ORDER BY moods.timestamp DESC
         """, (user_id,)).fetchall()
 
+
+# --- SMART ZEN QUOTE FETCHER ---
+def get_quote(keyword=None):
+    try:
+        url = "https://zenquotes.io/api/quotes"
+        response = requests.get(url, timeout=5)
+        data = response.json()
+
+        if isinstance(data, list) and data:
+            if keyword:
+                keyword_lower = keyword.lower()
+                for quote in data:
+                    if keyword_lower in quote["q"].lower():
+                        return f'"{quote["q"]}" — {quote["a"]}', keyword
+                return f'"{data[0]["q"]}" — {data[0]["a"]}', "random (fallback)"
+            else:
+                return f'"{data[0]["q"]}" — {data[0]["a"]}', "random"
+    except Exception as e:
+        print("[QUOTE ERROR]", e)
+    return "✨ Couldn't fetch quote. Try again!", "none"
+
+
+# --- MOOD TO KEYWORD MAPPING ---
+MOOD_KEYWORDS = {
+    "Sad": "Pain",
+    "Ecstatic": "Happiness",
+    "Excited": "Dreams",
+    "Bored": "Time",
+    "Tired": "Work",
+    "Happy": "Happiness",
+    "Calm": "Freedom",
+    "Stressed": "Anxiety",
+    "Worried": "Fear"
+}
+
+
 def DashboardPage(page: ft.Page, user_id: int):
     username = get_username(user_id)
     today_str = datetime.now().strftime("%A, %B %d, %Y")
@@ -28,8 +66,27 @@ def DashboardPage(page: ft.Page, user_id: int):
     now = datetime.now()
     first_day = now.replace(day=1)
     last_day = (now.replace(month=now.month % 12 + 1, day=1) - timedelta(days=1))
-
     mood_cards_column = ft.ResponsiveRow(alignment=ft.MainAxisAlignment.CENTER)
+
+    quote_text = ft.Text("Choose your mood to get inspired...", italic=True, color=ft.Colors.BLUE_400, size=14)
+    quote_keyword_label = ft.Text("", size=12, italic=True, color=ft.Colors.BLUE_100)
+    more_btn = ft.TextButton("More", visible=False)
+
+    def update_quote(keyword=None):
+        quote, used_keyword = get_quote(keyword)
+        quote_text.value = quote
+        quote_keyword_label.value = f"(keyword: {used_keyword})"
+        more_btn.visible = True
+        page.update()
+
+    def show_journal_entry(emoji, content, timestamp):
+        dlg = ft.AlertDialog(
+            title=ft.Text(f"📘 {emoji} — {timestamp}"),
+            content=ft.Column([ft.Text(content, size=16)], spacing=10),
+            actions=[ft.TextButton("Close", on_click=lambda e: page.close(dlg))],
+        )
+        page.dialog = dlg
+        page.open(dlg)
 
     def load_mood_cards():
         mood_cards_column.controls.clear()
@@ -38,17 +95,19 @@ def DashboardPage(page: ft.Page, user_id: int):
             card = ft.CupertinoContextMenu(
                 enable_haptic_feedback=True,
                 content=ft.Image(src=f"Assets/{emoji_file}", width=48, height=48),
-                actions=[
-                    ft.CupertinoContextMenuAction(
-                        text="View Journal",
-                        trailing_icon=ft.Icons.BOOK,
-                        on_click=lambda e, c=content, t=timestamp, emo=emoji: show_journal_entry(emo, c, t)
-                    )
-                ]
+                actions=[ft.CupertinoContextMenuAction(
+                    text="View Journal",
+                    trailing_icon=ft.Icons.BOOK,
+                    on_click=lambda e, c=content, t=timestamp, emo=emoji: show_journal_entry(emo, c, t)
+                )]
             )
-            mood_cards_column.controls.append(
-                ft.Container(content=card, col={"xs": 4, "sm": 3, "md": 2})
+            date_label = timestamp.split(",")[0] if isinstance(timestamp, str) else timestamp.strftime("%B %d")
+            mood_item = ft.Container(
+                content=ft.Column([card, ft.Text(date_label, size=12, italic=True)], spacing=4,
+                                  horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                col={"xs": 4, "sm": 3, "md": 2}
             )
+            mood_cards_column.controls.append(mood_item)
         page.update()
 
     def open_date_picker():
@@ -57,7 +116,7 @@ def DashboardPage(page: ft.Page, user_id: int):
             last_date=last_day,
             value=now,
             on_change=handle_date_change,
-            on_dismiss=lambda e: None
+            on_dismiss=lambda e: None,
         )
         page.overlay.append(dp)
         dp.open = True
@@ -76,7 +135,6 @@ def DashboardPage(page: ft.Page, user_id: int):
             page.update()
 
         journal_input.on_change = on_text_change
-
         dlg = ft.AlertDialog(
             title=ft.Text("Final Step!"),
             content=ft.Column([
@@ -115,20 +173,8 @@ def DashboardPage(page: ft.Page, user_id: int):
         page.close(dialog)
         page.snack_bar = ft.SnackBar(ft.Text("✅ Entry saved"))
         page.snack_bar.open = True
-
         load_mood_cards()
         page.update()
-
-    def show_journal_entry(emoji, content, timestamp):
-        dlg = ft.AlertDialog(
-            title=ft.Text(f"📘 {emoji} — {timestamp}"),
-            content=ft.Column([
-                ft.Text(content, size=16),
-            ], spacing=10),
-            actions=[ft.TextButton("Close", on_click=lambda e: page.close(dlg))],
-        )
-        page.dialog = dlg
-        page.open(dlg)
 
     emoji_row = ft.Row(visible=False, spacing=15, alignment=ft.MainAxisAlignment.CENTER)
     emojis = [
@@ -141,6 +187,8 @@ def DashboardPage(page: ft.Page, user_id: int):
         selected_emoji["file"] = file
         selected_emoji["label"] = label
         emoji_row.visible = False
+        keyword = MOOD_KEYWORDS.get(label)
+        update_quote(keyword)
         page.update()
         open_date_picker()
 
@@ -162,52 +210,61 @@ def DashboardPage(page: ft.Page, user_id: int):
         emoji_row.visible = not emoji_row.visible
         page.update()
 
-    # Logout menu
     logout_menu = ft.PopupMenuButton(
-        items=[
-            ft.PopupMenuItem(text="Logout", on_click=lambda e: page.go("/"))
-        ]
+        items=[ft.PopupMenuItem(text="Logout", on_click=lambda e: page.go("/"))]
     )
 
+    more_btn.on_click = lambda e: update_quote(MOOD_KEYWORDS.get(selected_emoji["label"], None))
     load_mood_cards()
 
     return ft.View(
         "/dashboard",
         controls=[
-            ft.Row(
-                alignment=ft.MainAxisAlignment.END,
-                controls=[logout_menu]
-            ),
-            ft.Column(
-                alignment=ft.MainAxisAlignment.CENTER,
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                controls=[
-                    ft.Image(src="Assets/ReAzure.png", width=140, height=140),
-                    ft.Text(f"Welcome, {username}!", size=24, weight="bold"),
-                    ft.Text(today_str, size=16, italic=True),
+            ft.Row(alignment=ft.MainAxisAlignment.END, controls=[logout_menu]),
+            ft.Row([
+                ft.Column(
+                    expand=True,
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    controls=[
+                        ft.Image(src="Assets/ReAzure.png", width=200, height=200),
+                        ft.Text(f"Welcome, {username}!", size=24, weight="bold"),
+                        ft.Text(today_str, size=16, italic=True),
+                        ft.Container(
+                            content=ft.Icon(name=ft.Icons.ADD, size=32),
+                            on_click=toggle_emojis,
+                            padding=10,
+                            border_radius=ft.border_radius.all(12),
+                            bgcolor=ft.Colors.BLUE_100,
+                        ),
+                        ft.Text("Add your Mood", size=14, italic=True),
+                        emoji_row,
+                        result_view,
+                        ft.Divider(),
 
-                    ft.Container(
-                        content=ft.Icon(name=ft.Icons.ADD, size=32),
-                        on_click=toggle_emojis,
-                        padding=10,
-                        border_radius=ft.border_radius.all(12),
-                        bgcolor=ft.Colors.BLUE_100,
-                    ),
+                        ft.Text("🕒 Mood History", size=18, weight="bold"),
+                        mood_cards_column,
 
-                    ft.Text("Add your Mood", size=14, italic=True),
-                    emoji_row,
-                    result_view,
-                    ft.Divider(),
-
-                    ft.Text("🕒 Mood History", size=18, weight="bold"),
-                    mood_cards_column,
-
-                    ft.Row([
-                        ft.ElevatedButton("🔁 Refresh Mood History", on_click=lambda _: load_mood_cards()),
-                        ft.ElevatedButton("📈 View My Mood Trends", on_click=lambda _: page.go("/analytics")),
-                    ], alignment=ft.MainAxisAlignment.CENTER)
-                ]
-            )
+                        ft.Row([
+                            ft.ElevatedButton("🔁 Refresh Mood History", on_click=lambda _: load_mood_cards()),
+                            ft.ElevatedButton("📈 View My Mood Trends", on_click=lambda _: page.go("/analytics")),
+                        ], alignment=ft.MainAxisAlignment.CENTER)
+                    ]
+                ),
+                ft.Container(
+                    content=ft.Column([
+                        ft.Text("☁ Azure Wall", size=16, weight="bold"),
+                        quote_text,
+                        quote_keyword_label,
+                        more_btn
+                    ], spacing=10),
+                    padding=15,
+                    border_radius=12,
+                    bgcolor=ft.Colors.LIGHT_BLUE_100,
+                    margin=ft.margin.only(left=20),
+                    width=300
+                )
+            ])
         ],
         padding=20,
         scroll=ft.ScrollMode.AUTO
