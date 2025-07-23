@@ -85,7 +85,8 @@ uvicorn api.main:app --reload
 | ☁️ Azure Wall             | Display motivational quotes based on mood          
 | 🔄 "More" Quotes          | Fetch new quotes based on keywords                  
 | 📈 Mood Analytics         | View bar chart of mood frequency using Matplotlib   
-| 👤 User Accounts          | Login and store sessions via SQLite               
+| 👤 User Accounts          | Login and Resigter new user  
+|🚀 FastAPI                 |Backend API for user authentication and application data             
 | 🧠 Coping Strategy AI     | Suggest strategies based on mood logs              
 | 🌐 WHO/Mental Health APIs | Integration with real mental health content APIs   
 
