@@ -50,22 +50,35 @@ def DashboardPage(page: ft.Page, user_id: int):
 
     def delete_mood(mood_id: int):
         delete_mood_entry(mood_id)
-        page.snack_bar = ft.SnackBar(ft.Text("🗑 Mood entry deleted."))
-        page.snack_bar.open = True
         load_mood_cards()
+        page.snack_bar = ft.SnackBar(ft.Text("🗑 Mood entry deleted."), duration=3000)
+        page.snack_bar.open = True
         page.update()
 
     def confirm_delete(mood_id: int):
-        dialog = ft.AlertDialog(
-            title=ft.Text("⚠️ Confirm Delete"),
-            content=ft.Text("Are you sure you want to delete this mood entry?"),
-            actions=[
-                ft.TextButton("Cancel", on_click=lambda e: page.close_dialog()),
-                ft.TextButton("Delete", on_click=lambda e: (delete_mood(mood_id), page.close_dialog()))
-            ],
-        )
+        dialog = ft.AlertDialog()
+        
+        def on_confirm_delete(e):
+            delete_mood(mood_id)
+            dialog.open = False
+            page.update()
+
+        def on_cancel(e):
+            dialog.open = False
+            page.update()
+
+        dialog.title = ft.Text("⚠️ Confirm Delete")
+        dialog.content = ft.Text("Are you sure you want to delete this mood entry?")
+        dialog.actions = [
+            ft.TextButton("Cancel", on_click=on_cancel),
+            ft.TextButton("Delete", on_click=on_confirm_delete)
+        ]
+        dialog.actions_alignment = ft.MainAxisAlignment.END
+
         page.dialog = dialog
-        page.open(dialog)
+        dialog.open = True
+        page.update()
+
 
     def show_journal_entry(emoji, content, timestamp):
         dlg = ft.AlertDialog(
@@ -79,6 +92,38 @@ def DashboardPage(page: ft.Page, user_id: int):
     def load_mood_cards():
         mood_cards_column.controls.clear()
         previous_month = ""
+
+        def show_mood_actions(mood_id, emoji, content, timestamp):
+                dlg = ft.AlertDialog(
+                    title=ft.Text(f"{emoji} — Mood Options"),
+                    content=ft.Column([
+                        ft.TextButton(
+                            "📘 View Journal",
+                            on_click=lambda e: (
+                                page.close(dlg),
+                                show_journal_entry(emoji, content, timestamp)
+                            )
+                        ),
+                        ft.TextButton(
+                            "🗑 Delete Mood",
+                            style=ft.ButtonStyle(color=ft.Colors.RED),
+                            on_click=lambda e: (
+                                page.close(dlg),
+                                delete_mood(mood_id)
+                            )
+                        ),
+                        ft.TextButton(
+                            "⬅ Back",
+                            style=ft.ButtonStyle(color=ft.Colors.GREY_600),
+                            on_click=lambda e: page.close(dlg)
+                        )
+                    ], spacing=10),
+                    actions=[],
+                    modal=True
+                )
+                page.dialog = dlg
+                page.open(dlg)
+
         for mood_id, emoji, timestamp, content in get_saved_moods(user_id):
             emoji_file = emoji.lower() + ".png"
             try:
@@ -89,36 +134,31 @@ def DashboardPage(page: ft.Page, user_id: int):
             current_month = parsed_date.strftime("%B %Y")
 
             if current_month != previous_month:
-                mood_cards_column.controls.append(ft.Text(f"🗓 {current_month}", size=14, weight="bold", color=ft.Colors.BLUE_900))
+                mood_cards_column.controls.append(
+                    ft.Text(f"🗓 {current_month}", size=14, weight="bold", color=ft.Colors.BLUE_900)
+                )
                 previous_month = current_month
-
-            card = ft.CupertinoContextMenu(
-                enable_haptic_feedback=True,
-                content=ft.Image(src=f"Assets/{emoji_file}", width=48, height=48),
-                actions=[
-                    ft.CupertinoContextMenuAction(
-                        text="View Journal",
-                        trailing_icon=ft.Icons.BOOK,
-                        on_click=lambda e, c=content, t=timestamp, emo=emoji: show_journal_entry(emo, c, t)
-                    ),
-                    ft.CupertinoContextMenuAction(
-                        text="Delete Mood",
-                        trailing_icon=ft.Icons.DELETE,
-                        is_destructive_action=True,
-                        on_click=lambda e, mid=mood_id: confirm_delete(mid)
-                    )
-                ]
-            )
 
             mood_item = ft.Container(
                 content=ft.Column([
-                    card,
+                    ft.Image(src=f"Assets/{emoji_file}", width=48, height=48),
                     ft.Text(date_label, size=12, italic=True)
-                ], spacing=4, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
-                col={"xs": 4, "sm": 3, "md": 2}
+                ],
+                    spacing=4,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER
+                ),
+                on_click=lambda e, mid=mood_id, emo=emoji, c=content, t=timestamp: show_mood_actions(mid, emo, c, t),
+                col={"xs": 4, "sm": 3, "md": 2},
+                padding=10,
+                border_radius=8,
+                bgcolor=ft.Colors.BLUE_50,
+                ink=True
             )
+
             mood_cards_column.controls.append(mood_item)
+
         page.update()
+
 
     def open_date_picker():
         dp = ft.DatePicker(
