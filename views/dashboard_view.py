@@ -1,5 +1,9 @@
 import flet as ft
-from datetime import datetime, timedelta
+from datetime import datetime
+import html
+from bs4 import BeautifulSoup
+from controllers.health_controller import get_stress_tips
+
 from controllers.dashboard_controller import (
     fetch_quote_by_mood,
     fetch_recommendations,
@@ -11,6 +15,7 @@ from models.dashboard_model import (
     save_journal_entry,
     delete_mood_entry
 )
+
 
 def DashboardPage(page: ft.Page, user_id: int):
     username = get_username(user_id)
@@ -29,6 +34,20 @@ def DashboardPage(page: ft.Page, user_id: int):
     azure_feedback = ft.Text(size=12, italic=True, color=ft.Colors.BLUE_500)
 
     recommendation_column = ft.Column(spacing=5)
+    health_column = ft.Column(spacing=8)
+
+    def load_health_tips():
+        health_column.controls.clear()
+        for title, raw_html in get_stress_tips():
+            soup = BeautifulSoup(raw_html, "html.parser")
+            clean_text = soup.get_text()
+            health_column.controls.append(
+                ft.Column([
+                    ft.Text(f"🩺 {html.unescape(title)}", size=13, weight="bold"),
+                    ft.Text(clean_text, size=12)
+                ], spacing=2)
+            )
+        page.update()
 
     def update_quote(mood_label=None):
         quote, source, keyword = fetch_quote_by_mood(mood_label)
@@ -55,31 +74,6 @@ def DashboardPage(page: ft.Page, user_id: int):
         page.snack_bar.open = True
         page.update()
 
-    def confirm_delete(mood_id: int):
-        dialog = ft.AlertDialog()
-        
-        def on_confirm_delete(e):
-            delete_mood(mood_id)
-            dialog.open = False
-            page.update()
-
-        def on_cancel(e):
-            dialog.open = False
-            page.update()
-
-        dialog.title = ft.Text("⚠️ Confirm Delete")
-        dialog.content = ft.Text("Are you sure you want to delete this mood entry?")
-        dialog.actions = [
-            ft.TextButton("Cancel", on_click=on_cancel),
-            ft.TextButton("Delete", on_click=on_confirm_delete)
-        ]
-        dialog.actions_alignment = ft.MainAxisAlignment.END
-
-        page.dialog = dialog
-        dialog.open = True
-        page.update()
-
-
     def show_journal_entry(emoji, content, timestamp):
         dlg = ft.AlertDialog(
             title=ft.Text(f"📘 {emoji} — {timestamp}"),
@@ -94,35 +88,35 @@ def DashboardPage(page: ft.Page, user_id: int):
         previous_month = ""
 
         def show_mood_actions(mood_id, emoji, content, timestamp):
-                dlg = ft.AlertDialog(
-                    title=ft.Text(f"{emoji} — Mood Options"),
-                    content=ft.Column([
-                        ft.TextButton(
-                            "📘 View Journal",
-                            on_click=lambda e: (
-                                page.close(dlg),
-                                show_journal_entry(emoji, content, timestamp)
-                            )
-                        ),
-                        ft.TextButton(
-                            "🗑 Delete Mood",
-                            style=ft.ButtonStyle(color=ft.Colors.RED),
-                            on_click=lambda e: (
-                                page.close(dlg),
-                                delete_mood(mood_id)
-                            )
-                        ),
-                        ft.TextButton(
-                            "⬅ Back",
-                            style=ft.ButtonStyle(color=ft.Colors.GREY_600),
-                            on_click=lambda e: page.close(dlg)
+            dlg = ft.AlertDialog(
+                title=ft.Text(f"{emoji} — Mood Options"),
+                content=ft.Column([
+                    ft.TextButton(
+                        "📘 View Journal",
+                        on_click=lambda e: (
+                            page.close(dlg),
+                            show_journal_entry(emoji, content, timestamp)
                         )
-                    ], spacing=10),
-                    actions=[],
-                    modal=True
-                )
-                page.dialog = dlg
-                page.open(dlg)
+                    ),
+                    ft.TextButton(
+                        "🗑 Delete Mood",
+                        style=ft.ButtonStyle(color=ft.Colors.RED),
+                        on_click=lambda e: (
+                            page.close(dlg),
+                            delete_mood(mood_id)
+                        )
+                    ),
+                    ft.TextButton(
+                        "⬅ Back",
+                        style=ft.ButtonStyle(color=ft.Colors.GREY_600),
+                        on_click=lambda e: page.close(dlg)
+                    )
+                ], spacing=10),
+                actions=[],
+                modal=True
+            )
+            page.dialog = dlg
+            page.open(dlg)
 
         for mood_id, emoji, timestamp, content in get_saved_moods(user_id):
             emoji_file = emoji.lower() + ".png"
@@ -143,10 +137,7 @@ def DashboardPage(page: ft.Page, user_id: int):
                 content=ft.Column([
                     ft.Image(src=f"Assets/{emoji_file}", width=48, height=48),
                     ft.Text(date_label, size=12, italic=True)
-                ],
-                    spacing=4,
-                    horizontal_alignment=ft.CrossAxisAlignment.CENTER
-                ),
+                ], spacing=4, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
                 on_click=lambda e, mid=mood_id, emo=emoji, c=content, t=timestamp: show_mood_actions(mid, emo, c, t),
                 col={"xs": 4, "sm": 3, "md": 2},
                 padding=10,
@@ -156,9 +147,12 @@ def DashboardPage(page: ft.Page, user_id: int):
             )
 
             mood_cards_column.controls.append(mood_item)
-
         page.update()
 
+    def handle_date_change(e: ft.ControlEvent):
+        picked = e.control.value
+        chosen_date.value = picked.strftime("%B %d, %Y")
+        open_journal_prompt()
 
     def open_date_picker():
         dp = ft.DatePicker(
@@ -170,11 +164,6 @@ def DashboardPage(page: ft.Page, user_id: int):
         page.overlay.append(dp)
         dp.open = True
         page.update()
-
-    def handle_date_change(e: ft.ControlEvent):
-        picked = e.control.value
-        chosen_date.value = picked.strftime("%B %d, %Y")
-        open_journal_prompt()
 
     def open_journal_prompt():
         save_btn = ft.TextButton("Save", disabled=True)
@@ -253,6 +242,7 @@ def DashboardPage(page: ft.Page, user_id: int):
 
     more_btn.on_click = lambda e: update_quote(selected_emoji["label"])
     load_mood_cards()
+    load_health_tips()  # ✅ load health guidance content
 
     return ft.View(
         "/dashboard",
@@ -297,13 +287,16 @@ def DashboardPage(page: ft.Page, user_id: int):
                         ft.Divider(),
                         ft.Text("🎯 Personalized Tips", size=15, weight="bold", color=ft.Colors.BLUE_900),
                         recommendation_column,
-                        gemini_text
+                        gemini_text,
+                        ft.Divider(),
+                        ft.Text("📚 Health Guidance", size=15, weight="bold", color=ft.Colors.BLUE_900),
+                        health_column
                     ], spacing=10),
                     padding=15,
                     border_radius=12,
                     bgcolor=ft.Colors.LIGHT_BLUE_100,
                     margin=ft.margin.only(left=20),
-                    width=320
+                    width=340
                 )
             ])
         ],

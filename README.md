@@ -88,7 +88,7 @@ uvicorn api.main:app --reload
 | 👤 User Accounts          | Login and Resigter new user  
 |🚀 FastAPI                 |Backend API for user authentication and application data             
 | 🧠 Coping Strategy AI     | Suggest strategies based on mood logs              
-| 🌐 WHO/Mental Health APIs | Integration with real mental health content APIs   
+| 🌐 Mental Health APIs | Integration with real mental health content APIs   
 
 ---
 
