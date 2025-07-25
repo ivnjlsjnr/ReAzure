@@ -3,7 +3,6 @@ from datetime import datetime
 import html
 from bs4 import BeautifulSoup
 from controllers.health_controller import get_stress_tips
-
 from controllers.dashboard_controller import (
     fetch_quote_by_mood,
     fetch_recommendations,
@@ -21,10 +20,12 @@ def DashboardPage(page: ft.Page, user_id: int):
     username = get_username(user_id)
     today_str = datetime.now().strftime("%A, %B %d, %Y")
     selected_emoji = {"file": "", "label": ""}
-    chosen_date = ft.Text("")
+    chosen_date = ft.Text()
     journal_input = ft.TextField(label="Describe your day", multiline=True, min_lines=3, width=300)
-    result_view = ft.Text("")
+    result_view = ft.Text()
     mood_cards_column = ft.ResponsiveRow(alignment=ft.MainAxisAlignment.CENTER)
+    recommendation_column = ft.Column(spacing=5)
+    health_column = ft.Column(spacing=8)
 
     quote_text = ft.Text("Choose your mood to get inspired...", italic=True, color=ft.Colors.BLUE_400, size=14)
     quote_keyword_label = ft.Text("", size=12, italic=True, color=ft.Colors.BLUE_100)
@@ -33,19 +34,31 @@ def DashboardPage(page: ft.Page, user_id: int):
     azure_rating = ft.Text(size=15, weight="bold", color=ft.Colors.BLUE_800)
     azure_feedback = ft.Text(size=12, italic=True, color=ft.Colors.BLUE_500)
 
-    recommendation_column = ft.Column(spacing=5)
-    health_column = ft.Column(spacing=8)
+    # Toggle section
+    toggle_health_btn = ft.TextButton(
+        "💆 Feeling stressed? Click here",
+        on_click=lambda e: toggle_health()
+    )
+
+    health_section = ft.Column(visible=False)
+
+    def toggle_health():
+        health_section.visible = not health_section.visible
+        page.update()
 
     def load_health_tips():
         health_column.controls.clear()
+
         for title, raw_html in get_stress_tips():
             soup = BeautifulSoup(raw_html, "html.parser")
             clean_text = soup.get_text()
+            bullet_lines = [line.strip() for line in clean_text.split("\n") if line.strip()]
+
             health_column.controls.append(
-                ft.Column([
-                    ft.Text(f"🩺 {html.unescape(title)}", size=13, weight="bold"),
-                    ft.Text(clean_text, size=12)
-                ], spacing=2)
+                ft.ExpansionTile(
+                    title=ft.Text(f"🩺 {html.unescape(title)}", size=13, weight="bold"),
+                    controls=[ft.Text(f"• {line}", size=12) for line in bullet_lines]
+                )
             )
         page.update()
 
@@ -53,11 +66,9 @@ def DashboardPage(page: ft.Page, user_id: int):
         quote, source, keyword = fetch_quote_by_mood(mood_label)
         quote_text.value = quote
         quote_keyword_label.value = f"(source: {source}, keyword: {keyword})"
-
         rating, feedback = get_recent_rating_feedback(user_id)
         azure_rating.value = f"🔷 Azure Rating: {rating}"
         azure_feedback.value = feedback
-
         more_btn.visible = True
         page.update()
 
@@ -78,7 +89,7 @@ def DashboardPage(page: ft.Page, user_id: int):
         dlg = ft.AlertDialog(
             title=ft.Text(f"📘 {emoji} — {timestamp}"),
             content=ft.Column([ft.Text(content, size=16)], spacing=10),
-            actions=[ft.TextButton("Close", on_click=lambda e: page.close(dlg))],
+            actions=[ft.TextButton("Close", on_click=lambda e: page.close(dlg))]
         )
         page.dialog = dlg
         page.open(dlg)
@@ -91,28 +102,10 @@ def DashboardPage(page: ft.Page, user_id: int):
             dlg = ft.AlertDialog(
                 title=ft.Text(f"{emoji} — Mood Options"),
                 content=ft.Column([
-                    ft.TextButton(
-                        "📘 View Journal",
-                        on_click=lambda e: (
-                            page.close(dlg),
-                            show_journal_entry(emoji, content, timestamp)
-                        )
-                    ),
-                    ft.TextButton(
-                        "🗑 Delete Mood",
-                        style=ft.ButtonStyle(color=ft.Colors.RED),
-                        on_click=lambda e: (
-                            page.close(dlg),
-                            delete_mood(mood_id)
-                        )
-                    ),
-                    ft.TextButton(
-                        "⬅ Back",
-                        style=ft.ButtonStyle(color=ft.Colors.GREY_600),
-                        on_click=lambda e: page.close(dlg)
-                    )
+                    ft.TextButton("📘 View Journal", on_click=lambda e: (page.close(dlg), show_journal_entry(emoji, content, timestamp))),
+                    ft.TextButton("🗑 Delete Mood", style=ft.ButtonStyle(color=ft.Colors.RED), on_click=lambda e: (page.close(dlg), delete_mood(mood_id))),
+                    ft.TextButton("⬅ Back", style=ft.ButtonStyle(color=ft.Colors.GREY_600), on_click=lambda e: page.close(dlg))
                 ], spacing=10),
-                actions=[],
                 modal=True
             )
             page.dialog = dlg
@@ -128,9 +121,7 @@ def DashboardPage(page: ft.Page, user_id: int):
             current_month = parsed_date.strftime("%B %Y")
 
             if current_month != previous_month:
-                mood_cards_column.controls.append(
-                    ft.Text(f"🗓 {current_month}", size=14, weight="bold", color=ft.Colors.BLUE_900)
-                )
+                mood_cards_column.controls.append(ft.Text(f"🗓 {current_month}", size=14, weight="bold", color=ft.Colors.BLUE_900))
                 previous_month = current_month
 
             mood_item = ft.Container(
@@ -145,7 +136,6 @@ def DashboardPage(page: ft.Page, user_id: int):
                 bgcolor=ft.Colors.BLUE_50,
                 ink=True
             )
-
             mood_cards_column.controls.append(mood_item)
         page.update()
 
@@ -223,7 +213,7 @@ def DashboardPage(page: ft.Page, user_id: int):
             ft.Container(
                 content=ft.Column([
                     ft.Image(src=f"Assets/{file}", width=48, height=48),
-                    ft.Text(label, size=12, text_align=ft.TextAlign.CENTER),
+                    ft.Text(label, size=12, text_align=ft.TextAlign.CENTER)
                 ], spacing=4, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
                 padding=8,
                 border_radius=8,
@@ -242,7 +232,9 @@ def DashboardPage(page: ft.Page, user_id: int):
 
     more_btn.on_click = lambda e: update_quote(selected_emoji["label"])
     load_mood_cards()
-    load_health_tips()  # ✅ load health guidance content
+    load_health_tips()
+
+    health_section.controls = [health_column]
 
     return ft.View(
         "/dashboard",
@@ -271,7 +263,7 @@ def DashboardPage(page: ft.Page, user_id: int):
                         ft.Text("🕒 Mood History", size=18, weight="bold"),
                         mood_cards_column,
                         ft.Row([
-                            ft.ElevatedButton("🔁 Refresh Mood History", on_click=lambda _: load_mood_cards()),
+                            ft.ElevatedButton("🔁 Refresh", on_click=lambda _: load_mood_cards()),
                             ft.ElevatedButton("📈 View My Mood Trends", on_click=lambda _: page.go("/analytics")),
                         ], alignment=ft.MainAxisAlignment.CENTER)
                     ]
@@ -289,14 +281,14 @@ def DashboardPage(page: ft.Page, user_id: int):
                         recommendation_column,
                         gemini_text,
                         ft.Divider(),
-                        ft.Text("📚 Health Guidance", size=15, weight="bold", color=ft.Colors.BLUE_900),
-                        health_column
+                        toggle_health_btn,
+                        health_section
                     ], spacing=10),
                     padding=15,
                     border_radius=12,
                     bgcolor=ft.Colors.LIGHT_BLUE_100,
                     margin=ft.margin.only(left=20),
-                    width=340
+                    width=360
                 )
             ])
         ],
