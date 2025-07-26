@@ -8,10 +8,25 @@ def RegistrationPage(page: ft.Page):
     email = ft.TextField(label="Email (optional)")
 
     def register(e):
-        success, message = handle_register(username.value.strip(), password.value.strip(), confirm_password.value.strip(), email.value.strip())
+        print("[Flet] Register clicked")
+        print("Username:", username.value)
+        print("Password:", password.value)
+        print("Confirm Password:", confirm_password.value)
+        print("Email:", email.value)
+
+        success, message = handle_register(
+            username.value.strip(),
+            password.value.strip(),
+            confirm_password.value.strip(),
+            email.value.strip()
+        )
+
+        print("[Flet] Result:", success, message)
+
         page.snack_bar = ft.SnackBar(ft.Text(message))
         page.snack_bar.open = True
         page.update()
+
         if success:
             page.go("/")
 

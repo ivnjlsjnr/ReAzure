@@ -13,7 +13,6 @@ def MoodAnalyticsPage(page: ft.Page, user_id: int):
         if df.empty:
             chart_column.controls.append(ft.Text("No mood data available."))
         else:
-            # 🔹 Add frequency summary
             total = df["count"].sum()
             top_mood = df.iloc[0]["mood"]
             top_count = df.iloc[0]["count"]
@@ -24,7 +23,6 @@ def MoodAnalyticsPage(page: ft.Page, user_id: int):
             )
             chart_column.controls.append(summary_text)
 
-            # 🔹 Add chart
             base64_img = generate_mood_chart_base64(df)
             chart_column.controls.append(
                 ft.Image(src_base64=base64_img, width=350)
