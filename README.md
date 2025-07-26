@@ -1,9 +1,8 @@
-````readme.md
+
 # ☁️ ReAzure
 
 A **Mental Health Tracker** platform designed to support emotional well-being through self-reflection, mood tracking, and community-based resources. By integrating journaling features and mood analytics, ReAzure encourages individuals to actively engage with their mental health.
 
----
 
 ### 📌 Proposal
 
@@ -13,7 +12,6 @@ A **Mental Health Tracker** platform designed to support emotional well-being th
 
 [View Progress Plan](https://docs.google.com/spreadsheets/d/1ijYl5Bpg2EKnJSlfxpNOBIK7D4_sALDX6/edit?usp=sharing&ouid=114568529811023043094&rtpof=true&sd=true)
 
----
 
 ## 🔧 Pre-requisites
 
