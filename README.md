@@ -29,17 +29,19 @@ Use pyenv to easily manage python version. Instructions here:[Pyenv](https://git
 ### Step 1: Clone the repository
 
 ```bash
-git clone [https://github.com/ivnjlsjnr/ReAzure](https://github.com/ivnjlsjnr/ReAzure)
+git clone https://github.com/ivnjlsjnr/ReAzure
+```
+```bash
 cd ReAzure
 ```
-
 ### Step 2: Create and activate a virtual environment
 
 ```bash
 python -m venv venv
+```
+```bash
 python3 -m venv venv (linux)
 ```
-
 #### To activate:
 
   * **Windows**:
