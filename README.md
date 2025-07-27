@@ -135,8 +135,15 @@ sudo ln -s /usr/lib/x86_64-linux-gnu/libmpv.so /usr/lib/libmpv.so.1
 ## 👥 Team Role
 
   * **Juanier, Julius Ivan M.** - Lead
+-----
 
-<!-- end list -->
+-----
+
+## App Main views
+<img width="1255" height="690" alt="Image" src="https://github.com/user-attachments/assets/7032684a-30e1-4a30-8459-edcc27f3fd9b" />
+<img width="1918" height="1031" alt="Image" src="https://github.com/user-attachments/assets/4353b956-7207-4d61-bfc5-06e228c5757a" />
+<img width="1919" height="570" alt="Image" src="https://github.com/user-attachments/assets/b3a71ef5-93df-4520-b8df-6c4e9b737855" />
+<img width="1916" height="1030" alt="Image" src="https://github.com/user-attachments/assets/281e589a-9624-4f27-b302-1e8c381edb60" /><!-- end list -->
 
 ```
 ```
