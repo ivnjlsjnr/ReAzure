@@ -6,11 +6,12 @@ A **Mental Health Mood Tracker** platform designed to support emotional well-bei
 
 ### 📌 Proposal
 
-[View Full Proposal on Google Drive](https://drive.google.com/file/d/1AcfpSmkxHPtAycWrDmN0ioSYhyqiX5Qr/view?usp=drive_link)
+[View Full Proposal on Google Drive](https://drive.google.com/file/d/1AcfpSmkxHPtAycWrDmN0ioSYhyqiX5Qr/view?usp=drive_link)  \
+[View Project Documentation](https://drive.google.com/file/d/19nmpCg2kTsBvvyUbvxEVvmFAipfEPnOP/view?usp=sharing) 
 
 ### 🗕️ Gantt Chart
 
-[View Progress Plan](https://docs.google.com/spreadsheets/d/1ijYl5Bpg2EKnJSlfxpNOBIK7D4_sALDX6/edit?usp=sharing&ouid=114568529811023043094&rtpof=true&sd=true)
+[View Progress Plan](https://docs.google.com/spreadsheets/d/1mWkYS2yBVCVVsYYMnSqV1aa-3epj6grH/edit?usp=sharing&ouid=107369633571634366071&rtpof=true&sd=true)
 
 
 ## 🔧 Pre-requisites
