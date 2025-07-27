@@ -235,6 +235,7 @@ def DashboardPage(page: ft.Page, user_id: int):
     load_health_tips()
 
     health_section.controls = [health_column]
+    page.theme_mode = ft.ThemeMode.LIGHT
 
     return ft.View(
         "/dashboard",
