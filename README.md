@@ -16,7 +16,7 @@ A **Mental Health Mood Tracker** platform designed to support emotional well-bei
 
 ## 🔧 Pre-requisites
 
-It is suggested that to have Python **3.11** installed.
+It is suggested that to have Python >= **3.11** installed.
 To check your version:
 ```bash
 python --version
