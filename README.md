@@ -22,7 +22,7 @@ To check your version:
 python --version
 ````
 
-If it does **not** show Python 3.11, download it from [https://www.python.org/downloads/release/python-3110/](https://www.python.org/downloads/release/python-3110/)  \
+If it does **not** show Python 3.11 >=, download it from [https://www.python.org/downloads/release/python-3110/](https://www.python.org/downloads/)  \
 Use pyenv to easily manage python version. Instructions here:[Pyenv](https://github.com/pyenv/pyenv#installation)  
 
 ## 🚀 Setup & Run Instructions
