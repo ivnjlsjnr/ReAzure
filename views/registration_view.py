@@ -2,6 +2,8 @@ import flet as ft
 from controllers.auth_controller import handle_register
 
 def RegistrationPage(page: ft.Page):
+    page.theme_mode = ft.ThemeMode.LIGHT
+
     username = ft.TextField(label="Username")
     password = ft.TextField(label="Password", password=True, can_reveal_password=True)
     confirm_password = ft.TextField(label="Confirm Password", password=True, can_reveal_password=True)
