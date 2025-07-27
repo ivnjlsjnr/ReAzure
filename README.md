@@ -71,7 +71,7 @@ pip install -r Requirements.txt
 python main.py
 ```
 
-#### 4.2: Run FastAPI backend  - On a new terminal and still inside the virtual environment
+#### 4.2: Run FastAPI backend  - On a new terminal and still inside the virtual environment (make sure you are inside ReAzure directory)
 
 ```bash
 uvicorn api.main:app --reload
